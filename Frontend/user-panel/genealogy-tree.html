@@ -466,7 +466,7 @@
                         <h3 style="text-align: center;">Enter Associate ID</h3>
                     
                         <form action="/search" method="get">
-                            <input type="text" name="q" placeholder="Search...">
+                            <input type="text" name="q" id="searchValue" placeholder="Search...">
                             <input type="submit" value="Search">
                         </form>
                     </div>
@@ -490,35 +490,249 @@
                 
                         if (username) {
                             //
-                            
-                
                             console.log('User is logged in. Username:', username);
+
                         } else {
                             
                             console.log('User is not logged in.');
                             
                             // window.location.href = 'login.html';
                         }
-                        
-                const api_url = 
-                    "https://rjm.dcode7.in/v1/GetDownline?username="+username+"&level=1";
-                
-                    console.log('api_url',api_url);
-                async function getapi(url) {
-                
-                    
-                    const response = await fetch(url);
-                
-                    
-                    var data = await response.json();
-                    console.log(data);
-                    if (response) {
-                        hideloader();
-                    }
-                    show(data);
-                }
-                
-                getapi(api_url);
+
+
+                         <!-- base url -->
+                        const api_url = "https://rjm.dcode7.in/v1/GetDownline?username="+username+"&level=1";
+                        const loggedInApi = "https://rjm.dcode7.in/v1/GetDetails?username=" + username
+
+                        function getUserIdFunc(event){
+                            event.preventDefault();
+                            const clickedData = event.target.innerText
+                            const searchInputValue = document.querySelector("#searchValue");
+                            searchInputValue.value = clickedData
+                            const searchUrl = "https://rjm.dcode7.in/v1/GetDownline?username="+clickedData+"&level=1";
+                            const loginDetailUrl = "https://rjm.dcode7.in/v1/GetDetails?username=" + clickedData
+                            async function getapi(url, loginApi) {
+                                const loggedInUserId= document.querySelector("#parentId")
+                                loggedInUserId.textContent = clickedData
+                                const response = await fetch(url);
+                                const loginApiRespnse = await fetch(loginApi);
+                                var data = await response.json();  
+                                let loginData = await loginApiRespnse.json();
+                                console.log("Parent", loginData)   
+                                const loggedInUserName = document.querySelector("#loggedInUserName")
+                        loggedInUserName.textContent = loginData[0].membername                     
+                                if(data.length !== 0){
+                                    data.forEach(item => {
+                                        if(item.placement == "Left" || item.placement == "left"){
+                                            console.log("help left")
+                                            document.querySelector("#leftUserNameData").textContent = item.fname
+                                            document.querySelector("#leftUserNameId").textContent = item.UserName
+                                            const leftUrl = "https://rjm.dcode7.in/v1/GetDownline?username="+item.UserName+"&level=1";
+                                            async function getLeftApi(url){
+                                                const response = await fetch(url);
+                                                let details = await response.json();
+                                                console.log("details", details)                      
+
+                                                if(details.length !== 0){
+                                                    details.forEach(itemOne=>{
+                                                        if(itemOne.placement == "Left" || item.placement == "left"){
+                                                            document.querySelector("#memberOneLeftUsername").textContent = itemOne.fname
+                                                document.querySelector("#memberOneLeftUserId").textContent = itemOne.UserName
+                                                        }
+                                                        else{
+                                                            document.querySelector("#memberOneLeftUsername").textContent = "----"
+                                                            document.querySelector("#memberOneLeftUserId").textContent = "----"
+                                                        }
+                                                        if(itemOne.placement == "Right" || itemOne.placement == "right"){
+                                                            document.querySelector("#memberOneRightUserName").textContent = itemOne.fname
+                                                            document.querySelector("#memberOneRightUserId").textContent = itemOne.UserName
+                                                        }
+                                                        else{
+                                                            document.querySelector("#memberOneRightUserName").textContent = "----"
+                                                            document.querySelector("#memberOneRightUserId").textContent = "----"
+                                                        }
+                                                    })
+                                                }
+                                                else{
+                                                    document.querySelector("#memberOneLeftUserId").textContent = "----"
+                                                    document.querySelector("#memberOneLeftUsername").textContent = "----"
+                                                    document.querySelector("#memberOneRightUserName").textContent = "----"
+                                                    document.querySelector("#memberOneRightUserId").textContent = "----"  
+                                                }
+                                            }
+                                            getLeftApi(leftUrl)
+
+                                        }
+                                        if(item.placement == "Right" || item.placement == "right"){
+                                            console.log("help right")
+                                            document.querySelector("#rightUserNameData").textContent = item.fname 
+                                            document.querySelector("#rightUserNameId").textContent = item.UserName
+                                            const rightUrl = "https://rjm.dcode7.in/v1/GetDownline?username="+item.UserName+"&level=1";
+                                           async function getRightApi(url){
+                                            const response = await fetch(url);
+                                            let rightDetails = await response.json();
+                                            console.log("rightDetails", rightDetails)
+                                            if(rightDetails.length !== 0){
+                                                rightDetails.forEach(itemTwo=>{
+                                                    if(itemTwo.placement == "Left" || itemTwo.placement == "left"){
+                                                        
+                                                document.querySelector("#rightOneUserName").textContent = itemTwo.fname
+                                                document.querySelector("#rightOneUserNameId").textContent = itemTwo.UserName
+                                                    }
+                                                    else{
+                                                        
+                                                document.querySelector("#rightOneUserName").textContent = "----"
+                                                document.querySelector("#rightOneUserNameId").textContent = "----"
+                                                    }
+                                                    if(itemTwo.placement == "Right" || itemTwo.placement == "right"){
+                                                        document.querySelector("#rightTwoUserName").textContent = itemTwo.fname
+                                                    document.querySelector("#rightTwoUserNameId").textContent = itemTwo.UserName
+                                                    }
+                                                    else{
+                                                        document.querySelector("#rightTwoUserName").textContent = "----"
+                                                    document.querySelector("#rightTwoUserNameId").textContent = "----"
+                                                    }
+                                                })
+                                            }
+                                            else{
+                                                document.querySelector("#rightOneUserName").textContent = "----"
+                                                document.querySelector("#rightOneUserNameId").textContent = "----"
+                                                document.querySelector("#rightTwoUserName").textContent = "----"
+                                                document.querySelector("#rightTwoUserNameId").textContent = "----"  
+                                            }
+                                           }
+                                           getRightApi(rightUrl)
+
+                                        }else{
+                                            document.querySelector("#rightUserNameData").textContent = "----" 
+                                            document.querySelector("#rightUserNameId").textContent = "----"
+                                        }
+                                    });
+                                }else{
+                                    console.log("ask6")
+
+                                    document.querySelector("#leftUserNameId").textContent = '----'
+                                    document.querySelector("#rightUserNameId").textContent = '----'
+                                    document.querySelector("#memberOneLeftUserId").textContent = '----'
+                                    document.querySelector("#memberOneRightUserId").textContent = '----'
+                                    document.querySelector("#rightOneUserNameId").textContent = '----'
+                                    document.querySelector("#rightTwoUserNameId").textContent = '----'
+                                    document.querySelector("#leftUserNameData").textContent = "----"
+                                    document.querySelector("#rightUserNameData").textContent = "----"
+                                    document.querySelector("#memberOneLeftUsername").textContent = "----"
+                                    document.querySelector("#memberOneRightUserName").textContent = "----"
+                                    document.querySelector("#rightOneUserName").textContent = "----"
+                                    document.querySelector("#rightTwoUserName").textContent = "----"
+
+                                }
+                                if (response) {
+                                    hideloader();
+                                }
+                                show(data);
+                            }  
+                            getapi(searchUrl, loginDetailUrl);
+                           
+                        }
+                       
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    async function getapi(url, loginUrl) {
+                        const loggedInUserId= document.querySelector("#parentId")
+                        loggedInUserId.textContent = username
+                        const response = await fetch(url);
+                        const loginResponse = await fetch(loggedInApi);
+                        var data = await response.json();  
+                        let loggedInDetails = await loginResponse.json();
+                        console.log("logged", loggedInDetails)
+                        console.log("Parent", data)  
+                        const loggedInUserName = document.querySelector("#loggedInUserName")
+                        loggedInUserName.textContent = loggedInDetails[0].membername                    
+                        if(data !== null){
+                            data.forEach(item => {
+                                if(item.placement == "Left" || item.placement == "left"){
+                                    document.querySelector("#leftUserNameData").textContent = item.fname
+                                    document.querySelector("#leftUserNameId").textContent = item.UserName
+
+                                const leftUrl = "https://rjm.dcode7.in/v1/GetDownline?username="+item.UserName+"&level=1";
+                                   async function getLeftApi(url){
+                                    const response = await fetch(url);
+                                    let details = await response.json();
+                                    console.log("left", details)
+
+                                   if(details != null){
+                                    details.forEach(itemOne=>{
+                                        if(itemOne.placement == "Left" || itemOne.placement == "left"){
+                                        document.querySelector("#memberOneLeftUsername").textContent = itemOne.fname
+                                        document.querySelector("#memberOneLeftUserId").textContent = itemOne.UserName
+                                            
+                                        }else if(itemOne.placement == "Right" || itemOne.placement == "right"){
+                                            document.querySelector("#memberOneRightUserName").innerHTML = itemOne.fname
+                                            document.querySelector("#memberOneRightUserId").innerHTML = itemOne.UserName
+                                        }else{
+                                            console.log("Couldn't fetch data")
+                                            document.querySelector("#memberOneLeftUsername").textContent = '----'
+                                        document.querySelector("#memberOneLeftUserId").textContent = "----"
+                                        document.querySelector("#memberOneRightUserName").innerHTML = '----'
+                                            document.querySelector("#memberOneRightUserId").innerHTML = "----"
+                                        }
+                                    })
+                                   }else{
+                                    console.log("Couldn't fetch data")
+                                   }
+                                   }
+                                   getLeftApi(leftUrl)
+                                }
+                                else if(item.placement == "Right" || item.placement == "right"){
+                                    document.querySelector("#rightUserNameData").innerHTML = item.fname 
+                                    document.querySelector("#rightUserNameId").innerHTML = item.UserName
+
+                                    const rightUrl = "https://rjm.dcode7.in/v1/GetDownline?username="+item.UserName+"&level=1";
+                                   async function getRightApi(url){
+                                    const response = await fetch(url);
+                                    let rightDetails = await response.json();
+                                    console.log("right", rightDetails)
+
+                                   if(rightDetails != null){
+                                    rightDetails.forEach(itemTwo=>{
+                                        if(itemTwo.placement == "Left" || itemTwo.placement == "left"){
+                                        document.querySelector("#rightOneUserName").innerHTML = itemTwo.fname
+                                        document.querySelector("#rightOneUserNameId").innerHTML = itemTwo.UserName
+                                            
+                                        }else if(itemTwo.placement == "Right" || itemTwo.placement == "right"){
+                                            document.querySelector("#rightTwoUserName").innerHTML = itemTwo.fname
+                                            document.querySelector("#rightTwoUserNameId").innerHTML = itemTwo.UserName
+                                        }else{
+                                            document.querySelector("#rightOneUserName").innerHTML = '----'
+                                        document.querySelector("#rightOneUserNameId").innerHTML = "----"
+                                        document.querySelector("#rightTwoUserName").innerHTML = '----'
+                                            document.querySelector("#rightTwoUserNameId").innerHTML = "----"
+                                        }
+                                    })
+                                   }else{
+                                    console.log("Couldn't fetch data")
+                                   }
+                                   }
+                                   getRightApi(rightUrl)
+                                    
+                                }else{
+                                    document.querySelector("#leftUserNameData").textContent = "----"
+                                    document.querySelector("#leftUserNameId").textContent = "----"
+                                    console.log("Couldn't fetch data")
+                                }
+                                
+                                
+                            });
+                        }else{
+                            console.log("null")
+                        }
+                        if (response) {
+                            hideloader();
+                        }
+                        show(data);
+                    }  
+                    getapi(api_url, loggedInApi);
+                })
+               
                 
                 
                 function hideloader() {
@@ -561,8 +775,8 @@
                                             <i class="fa-solid fa-user-tie" style="font-size:48px;color:red"></i>
                                             <!-- <img src="/img/b-sm.jpg" alt="Member"> -->
                                             <div class="member-details">
-                                                <h5 style="text-align: center;" id="fname">Manish</h5>
-                                                <p style="margin-top: -10px;" id="id">DR422848</p>
+                                                <h5 style="text-align: center;" id="loggedInUserName"></h5>
+                                                <p style="margin-top: -10px;" id="parentId" onclick="getUserIdFunc(event)"></p>
                                             </div>
                                         </div>
                                     </div>
@@ -576,35 +790,33 @@
             
                                                     <!-- <img src="img/b-sm.jpg" alt="Member"> -->
                                                     <div class="member-details">
-                                                        <h5>Manas</h5>
-                                                        <p style="margin-top: -10px;">DR422848</p>
+                                                        <h5 id="leftUserNameData"></h5>
+                                                        <p id="leftUserNameId" style="margin-top: -10px;" onclick="getUserIdFunc(event)" ></p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </a>
-                                        <ul >
-                                           
-                                            
+                                        <ul class="active" style="display: block;">
                                             <li>
                                                 <a href="javascript:void(0);">
                                                     <div class="member-view-box">
                                                         <div class="member-image">
                                                             <i class="fa-solid fa-user-tie" style="font-size:48px;color:black"></i>
                                                             <div class="member-details">
-                                                                <h5>Member 1-3</h5>
-                                                                <p style="margin-top: -10px;">DR422848</p>
+                                                                <h5 id="memberOneLeftUsername"></h5>
+                                                                <p id="memberOneLeftUserId" style="margin-top: -10px;" onclick="getUserIdFunc(event)"></p>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </a>
-                                                <ul>
+                                                <!-- <ul>
                                                     <li>
                                                         <a href="javascript:void(0);">
                                                             <div class="member-view-box">
                                                                 <div class="member-image">
                                                                     <i class="fa-solid fa-user-tie" style="font-size:48px;color:gray"></i>
                                                                     <div class="member-details">
-                                                                        <h5>Member 1-3-1</h5>
+                                                                        <h5 id="memberOneOneLeftUserName"></h5>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -616,7 +828,7 @@
                                                                 <div class="member-image">
                                                                     <i class="fa-solid fa-user-tie" style="font-size:48px;color:gray"></i>
                                                                     <div class="member-details">
-                                                                        <h5>Member 1-3-2</h5>
+                                                                        <h5 id="memberOneTwoLeftUserName"></h5>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -628,13 +840,13 @@
                                                                 <div class="member-image">
                                                                     <i class="fa-solid fa-user-tie" style="font-size:48px;color:gray"></i>
                                                                     <div class="member-details">
-                                                                        <h5>Member 1-3-3</h5>
+                                                                        <h5 id="memberOneThreeLeftUserName"></h5>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </a>
                                                     </li>
-                                                </ul>
+                                                </ul> -->
                                             </li>
                                             
                                             
@@ -645,13 +857,13 @@
                                                         <div class="member-image">
                                                             <i class="fa-solid fa-user-tie" style="font-size:48px;color:black"></i>
                                                             <div class="member-details">
-                                                                <h5>Member</h5>
-                                                                <p style="margin-top: -10px;">4647</p>
+                                                                <h5 id="memberOneRightUserName"></h5>
+                                                                <p id="memberOneRightUserId" style="margin-top: -10px;" onclick="getUserIdFunc(event)"></p>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </a>
-                                                <ul>
+                                                <!-- <ul>
                                                     <li>
                                                         <a href="javascript:void(0);">
                                                             <div class="member-view-box">
@@ -664,7 +876,7 @@
                                                             </div>
                                                         </a>
                                                     </li>
-                                                    <!-- <li>
+                                                    <li>
                                                         <a href="javascript:void(0);">
                                                             <div class="member-view-box">
                                                                 <div class="member-image">
@@ -713,7 +925,7 @@
                                                                 </a>
                                                             </li>
                                                         </ul>
-                                                    </li> -->
+                                                    </li>
                                                     <li>
                                                         <a href="javascript:void(0);">
                                                             <div class="member-view-box">
@@ -738,7 +950,7 @@
                                                             </div>
                                                         </a>
                                                     </li>
-                                                </ul>
+                                                </ul> -->
                                             </li>
                                         </ul>
                                     </li>
@@ -751,8 +963,8 @@
             
                                                     <!-- <img src="img/c-sm.jpg" alt="Member"> -->
                                                     <div class="member-details">
-                                                        <h5>Mansi</h5>
-                                                        <p>DR233463</p>
+                                                        <h5 id="rightUserNameData"></h5>
+                                                        <p id="rightUserNameId" style="margin-top: -10px;" onclick="getUserIdFunc(event)"></p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -764,12 +976,14 @@
                                                         <div class="member-image">
                                                             <i class="fa-solid fa-user-tie" style="font-size:48px;color:black"></i>
                                                             <div class="member-details">
-                                                                <h5>Madhu</h5>
+                                                                <h5 id="rightOneUserName"></h5>
+                                                        <p id="rightOneUserNameId" style="margin-top: -10px;" onclick="getUserIdFunc(event)"></p>
+
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </a>
-                                              <ul>
+                                              <!-- <ul>
                                                     <li>
                                                         <a href="javascript:void(0);">
                                                             <div class="member-view-box">
@@ -806,7 +1020,7 @@
                                                             </div>
                                                         </a>
                                                     </li>
-                                                </ul>
+                                                </ul> -->
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0);">
@@ -814,12 +1028,15 @@
                                                         <div class="member-image">
                                                             <i class="fa-solid fa-user-tie" style="font-size:48px;color:black"></i>
                                                             <div class="member-details">
-                                                                <h5>Puja</h5>
+                                                                <h5 id="rightTwoUserName"></h5>
+                                                        <p id="rightTwoUserNameId" style="margin-top: -10px;" onclick="getUserIdFunc(event)"></p>
+
+
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </a>
-                                                <ul>
+                                                <!-- <ul>
                                                     <li>
                                                         <a href="javascript:void(0);">
                                                             <div class="member-view-box">
@@ -856,7 +1073,7 @@
                                                             </div>
                                                         </a>
                                                     </li>
-                                                </ul>
+                                                </ul> -->
                                             </li>
                                             <!-- <li>
                                                 <a href="javascript:void(0);">
